@@ -1,11 +1,10 @@
 # Makefile pour ai_chat.so (version modulaire)
-## Dépendances: libgtksourceview-3.0-dev, libcurl4-openssl-dev
+## Dépendances: libgtksourceview-4.0-dev, libcurl4-openssl-dev
 
 CC = gcc
-CFLAGS = -fPIC -Wall -Wextra -O0 -ggdb -fstack-protector-strong -D_FORTIFY_SOURCE=3
-
-PKG_CFLAGS = $(shell pkg-config --cflags geany gtk+-3.0 gtksourceview-3.0)
-PKG_LIBS = $(shell pkg-config --libs geany gtk+-3.0 gtksourceview-3.0) \
+CFLAGS = -fPIC -Wall -Wextra -Wpedantic -O0 -ggdb -fstack-protector-strong -D_FORTIFY_SOURCE=3
+PKG_CFLAGS = $(shell pkg-config --cflags geany gtk+-3.0 gtksourceview-4)
+PKG_LIBS = $(shell pkg-config --libs geany gtk+-3.0 gtksourceview-4) \
            -lcurl -lgthread-2.0 \
            -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now
 
@@ -35,10 +34,13 @@ $(TARGET): $(OBJECTS)
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $(PKG_CFLAGS) -I$(SRCDIR) -c $< -o $@
 
-install:
-	mkdir -p $(HOME)/.config/geany/plugins
-	sudo cp $(TARGET) /usr/local/lib/geany/
+PREFIX ?= $(HOME)/.local
+PLUGIN_DIR ?= $(HOME)/.config/geany/plugins
 
+install: all
+	mkdir -p $(PLUGIN_DIR)
+	cp $(TARGET) $(PLUGIN_DIR)/
+	
 clean:
 	$(RM) -r $(OBJDIR) $(TARGET)
 
