@@ -106,7 +106,7 @@ void ui_add_user_row(const gchar *text)
     GtkWidget *outer = gtk_bin_get_child(GTK_BIN(row));
 
     GtkWidget *hdr = gtk_label_new(NULL);
-    gchar *markup = g_markup_printf_escaped("<b>Vous</b>");
+    gchar *markup = g_markup_printf_escaped("<b>You</b>");
     gtk_label_set_markup(GTK_LABEL(hdr), markup);
     g_free(markup);
     gtk_label_set_xalign(GTK_LABEL(hdr), 0.0);
@@ -331,13 +331,13 @@ static void on_send_selection(GtkButton *b, gpointer u)
     GeanyDocument *doc = document_get_current();
     if (!doc || !doc->editor || !doc->editor->sci)
     {
-        ui_add_info_row("[Info] Aucun document actif.");
+        ui_add_info_row("[Info] No active document.");
         return;
     }
     ScintillaObject *sci = doc->editor->sci;
     if (!sci_has_selection(sci))
     {
-        ui_add_info_row("[Info] Aucune sélection.");
+        ui_add_info_row("[Info] No selection.");
         return;
     }
     gchar *sel = sci_get_selection_contents(sci);
@@ -369,7 +369,7 @@ static void on_reset(GtkButton *b, gpointer u)
 {
     (void)b; (void)u;
     history_init();
-    ui_add_info_row("[Historique réinitialisé]");
+    ui_add_info_row("[History reset]");
 }
 
 static void on_stop(GtkButton *b, gpointer u)
@@ -380,7 +380,7 @@ static void on_stop(GtkButton *b, gpointer u)
         g_atomic_int_set(&current_req->cancel, 1);
         GtkTextIter it;
         gtk_text_buffer_get_end_iter(current_req->stream_buf, &it);
-        gtk_text_buffer_insert(current_req->stream_buf, &it, "\n[Stop demandé]\n", -1);
+        gtk_text_buffer_insert(current_req->stream_buf, &it, "\n[Stop requested]\n", -1);
     }
 }
 
@@ -461,7 +461,7 @@ static gchar* generate_conversation_markdown(void)
                 if (t && *t)
                 {
                     /* Check if it's a header (Vous/Assistant) */
-                    if (is_first && (g_str_has_prefix(t, "Vous") || g_str_has_prefix(t, "Assistant")))
+                    if (is_first && (g_str_has_prefix(t, "You") || g_str_has_prefix(t, "Assistant")))
                     {
                         g_string_append_printf(out, "## %s\n\n", t);
                     }
@@ -524,11 +524,11 @@ static void on_export(GtkButton *b, gpointer u)
     (void)b; (void)u;
 
     GtkWidget *dlg = gtk_file_chooser_dialog_new(
-        "Exporter la conversation",
+        "Export the conversation",
         GTK_WINDOW(gtk_widget_get_toplevel(ui.root_box)),
         GTK_FILE_CHOOSER_ACTION_SAVE,
-        "Annuler", GTK_RESPONSE_CANCEL,
-        "Enregistrer", GTK_RESPONSE_ACCEPT,
+        "Cancel", GTK_RESPONSE_CANCEL,
+        "Save", GTK_RESPONSE_ACCEPT,
         NULL);
 
     gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dlg), TRUE);
@@ -541,12 +541,12 @@ static void on_export(GtkButton *b, gpointer u)
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), md_filter);
 
     GtkFileFilter *txt_filter = gtk_file_filter_new();
-    gtk_file_filter_set_name(txt_filter, "Texte (*.txt)");
+    gtk_file_filter_set_name(txt_filter, "Text (*.txt)");
     gtk_file_filter_add_pattern(txt_filter, "*.txt");
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), txt_filter);
 
     GtkFileFilter *all_filter = gtk_file_filter_new();
-    gtk_file_filter_set_name(all_filter, "Tous les fichiers");
+    gtk_file_filter_set_name(all_filter, "All files");
     gtk_file_filter_add_pattern(all_filter, "*");
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dlg), all_filter);
 
@@ -558,13 +558,13 @@ static void on_export(GtkButton *b, gpointer u)
 
         if (g_file_set_contents(filename, content, -1, &err))
         {
-            gchar *msg = g_strdup_printf("[Conversation exportée: %s]", filename);
+            gchar *msg = g_strdup_printf("[Exported conversation: %s]", filename);
             ui_add_info_row(msg);
             g_free(msg);
         }
         else
         {
-            gchar *msg = g_strdup_printf("[Erreur export: %s]", err->message);
+            gchar *msg = g_strdup_printf("[Export error: %s]", err->message);
             ui_add_info_row(msg);
             g_free(msg);
             g_error_free(err);
@@ -605,7 +605,7 @@ typedef struct {
 static void populate_preset_combo(GtkComboBoxText *combo, const gchar *select_name)
 {
     gtk_combo_box_text_remove_all(combo);
-    gtk_combo_box_text_append(combo, "_custom_", "(Personnalisé)");
+    gtk_combo_box_text_append(combo, "_custom_", "(Personalized)");
 
     GList *names = prefs_get_preset_names();
     gint idx = 0;
@@ -651,13 +651,13 @@ static void on_preset_new(GtkButton *btn, gpointer user_data)
     GtkWidget *dlg = gtk_dialog_new_with_buttons("Nouveau preset",
                         GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(data->combo))),
                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                        "Annuler", GTK_RESPONSE_CANCEL,
-                        "Créer", GTK_RESPONSE_OK,
+                        "Cancel", GTK_RESPONSE_CANCEL,
+                        "Create", GTK_RESPONSE_OK,
                         NULL);
 
     GtkWidget *area = gtk_dialog_get_content_area(GTK_DIALOG(dlg));
     GtkWidget *entry = gtk_entry_new();
-    gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "Nom du preset...");
+    gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "Preset name...");
     gtk_box_pack_start(GTK_BOX(area), entry, FALSE, FALSE, 8);
     gtk_widget_show_all(dlg);
 
@@ -694,7 +694,7 @@ static void on_preset_delete(GtkButton *btn, gpointer user_data)
         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_QUESTION,
         GTK_BUTTONS_YES_NO,
-        "Supprimer le preset \"%s\" ?", data->editing_preset);
+        "Delete the preset \"%s\" ?", data->editing_preset);
 
     if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_YES)
     {
@@ -714,11 +714,11 @@ static void on_preset_rename(GtkButton *btn, gpointer user_data)
 
     if (!data->editing_preset) return;
 
-    GtkWidget *dlg = gtk_dialog_new_with_buttons("Renommer le preset",
+    GtkWidget *dlg = gtk_dialog_new_with_buttons("Rename the preset",
                         GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(data->combo))),
                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                        "Annuler", GTK_RESPONSE_CANCEL,
-                        "Renommer", GTK_RESPONSE_OK,
+                        "Cancel", GTK_RESPONSE_CANCEL,
+                        "Rename", GTK_RESPONSE_OK,
                         NULL);
 
     GtkWidget *area = gtk_dialog_get_content_area(GTK_DIALOG(dlg));
@@ -749,11 +749,11 @@ static void on_context_clicked(GtkButton *b, gpointer u)
 
     ContextDialogData data = {0};
 
-    GtkWidget *dlg = gtk_dialog_new_with_buttons("Contexte système",
+    GtkWidget *dlg = gtk_dialog_new_with_buttons("System context",
                         GTK_WINDOW(gtk_widget_get_toplevel(ui.root_box)),
                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                        "Annuler", GTK_RESPONSE_CANCEL,
-                        "Appliquer", GTK_RESPONSE_OK,
+                        "Cancel", GTK_RESPONSE_CANCEL,
+                        "Apply", GTK_RESPONSE_OK,
                         NULL);
     gtk_window_set_default_size(GTK_WINDOW(dlg), 500, 400);
 
@@ -768,8 +768,8 @@ static void on_context_clicked(GtkButton *b, gpointer u)
     GtkWidget *btn_del = gtk_button_new_with_label("-");
     GtkWidget *btn_rename = gtk_button_new_with_label("✎");
     gtk_widget_set_tooltip_text(btn_new, "Nouveau preset");
-    gtk_widget_set_tooltip_text(btn_del, "Supprimer le preset");
-    gtk_widget_set_tooltip_text(btn_rename, "Renommer le preset");
+    gtk_widget_set_tooltip_text(btn_del, "Delete preset");
+    gtk_widget_set_tooltip_text(btn_rename, "Rename preset");
 
     gtk_box_pack_start(GTK_BOX(preset_row), preset_label, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(preset_row), data.combo, TRUE, TRUE, 0);
@@ -787,7 +787,7 @@ static void on_context_clicked(GtkButton *b, gpointer u)
     gtk_container_add(GTK_CONTAINER(sw), data.textview);
 
     /* Info label */
-    GtkWidget *info = gtk_label_new("Le prompt système définit le comportement de l'assistant.");
+    GtkWidget *info = gtk_label_new("The system prompt defines the assistant's behavior.");
     gtk_label_set_xalign(GTK_LABEL(info), 0.0);
     gtk_widget_set_margin_top(info, 8);
 
@@ -833,7 +833,7 @@ static void on_context_clicked(GtkButton *b, gpointer u)
         g_free(txt);
         prefs_save();
         history_init();
-        ui_add_info_row("[Contexte système mis à jour]");
+        ui_add_info_row("[System context updated]");
     }
 
     g_free(data.editing_preset);
@@ -846,11 +846,11 @@ static void on_network_clicked(GtkButton *b, gpointer u)
 {
     (void)b; (void)u;
 
-    GtkWidget *dlg = gtk_dialog_new_with_buttons("Paramètres réseau",
+    GtkWidget *dlg = gtk_dialog_new_with_buttons("Network settings",
                         GTK_WINDOW(gtk_widget_get_toplevel(ui.root_box)),
                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                        "Annuler", GTK_RESPONSE_CANCEL,
-                        "Appliquer", GTK_RESPONSE_OK,
+                        "Cancel", GTK_RESPONSE_CANCEL,
+                        "Apply", GTK_RESPONSE_OK,
                         NULL);
     gtk_window_set_default_size(GTK_WINDOW(dlg), 400, -1);
 
@@ -862,11 +862,11 @@ static void on_network_clicked(GtkButton *b, gpointer u)
     gtk_grid_set_column_spacing(GTK_GRID(grid), 12);
 
     /* Timeout */
-    GtkWidget *lbl_timeout = gtk_label_new("Timeout (secondes) :");
+    GtkWidget *lbl_timeout = gtk_label_new("Timeout (seconds) :");
     gtk_widget_set_halign(lbl_timeout, GTK_ALIGN_END);
     GtkWidget *spin_timeout = gtk_spin_button_new_with_range(0, 600, 10);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(spin_timeout), prefs.timeout);
-    gtk_widget_set_tooltip_text(spin_timeout, "0 = pas de limite");
+    gtk_widget_set_tooltip_text(spin_timeout, "0 = no limit");
 
     gtk_grid_attach(GTK_GRID(grid), lbl_timeout, 0, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), spin_timeout, 1, 0, 1, 1);
@@ -883,7 +883,7 @@ static void on_network_clicked(GtkButton *b, gpointer u)
     gtk_grid_attach(GTK_GRID(grid), ent_proxy, 1, 1, 1, 1);
 
     /* Info */
-    GtkWidget *info = gtk_label_new("Le proxy supporte HTTP/HTTPS/SOCKS5.");
+    GtkWidget *info = gtk_label_new("The proxy supports HTTP/HTTPS/SOCKS5.");
     gtk_label_set_xalign(GTK_LABEL(info), 0.0);
     gtk_widget_set_margin_top(info, 8);
     gtk_style_context_add_class(gtk_widget_get_style_context(info), "dim-label");
@@ -899,7 +899,7 @@ static void on_network_clicked(GtkButton *b, gpointer u)
         g_free(prefs.proxy);
         prefs.proxy = g_strdup(gtk_entry_get_text(GTK_ENTRY(ent_proxy)));
         prefs_save();
-        ui_add_info_row("[Paramètres réseau mis à jour]");
+        ui_add_info_row("[Network settings updated]");
     }
 
     gtk_widget_destroy(dlg);
@@ -959,18 +959,18 @@ static void on_backend_save(GtkButton *btn, gpointer user_data)
     (void)btn;
     BackendsDialogData *data = (BackendsDialogData *)user_data;
 
-    GtkWidget *dlg = gtk_dialog_new_with_buttons("Sauvegarder la config",
+    GtkWidget *dlg = gtk_dialog_new_with_buttons("Save configuration",
                         GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(data->combo))),
                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                        "Annuler", GTK_RESPONSE_CANCEL,
-                        "Sauvegarder", GTK_RESPONSE_OK,
+                        "Cancel", GTK_RESPONSE_CANCEL,
+                        "Save", GTK_RESPONSE_OK,
                         NULL);
 
     GtkWidget *area = gtk_dialog_get_content_area(GTK_DIALOG(dlg));
     GtkWidget *entry = gtk_entry_new();
     if (data->editing_backend)
         gtk_entry_set_text(GTK_ENTRY(entry), data->editing_backend);
-    gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "Nom du preset (ex: Ollama local)");
+    gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "Name of the preset (ex: Ollama local)");
     gtk_box_pack_start(GTK_BOX(area), entry, FALSE, FALSE, 8);
     gtk_widget_show_all(dlg);
 
@@ -1000,7 +1000,7 @@ static void on_backend_load(GtkButton *btn, gpointer user_data)
     prefs_save();
     sync_ui_to_prefs();
     history_init();
-    ui_add_info_row("[Backend chargé, historique réinitialisé]");
+    ui_add_info_row("[Backend loaded, history reset]");
 }
 
 static void on_backend_delete(GtkButton *btn, gpointer user_data)
@@ -1015,7 +1015,7 @@ static void on_backend_delete(GtkButton *btn, gpointer user_data)
         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
         GTK_MESSAGE_QUESTION,
         GTK_BUTTONS_YES_NO,
-        "Supprimer le backend \"%s\" ?", data->editing_backend);
+        "Delete the backend \"%s\" ?", data->editing_backend);
 
     if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_YES)
     {
@@ -1035,11 +1035,11 @@ static void on_backend_rename(GtkButton *btn, gpointer user_data)
 
     if (!data->editing_backend) return;
 
-    GtkWidget *dlg = gtk_dialog_new_with_buttons("Renommer le backend",
+    GtkWidget *dlg = gtk_dialog_new_with_buttons("Rename the backend",
                         GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(data->combo))),
                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                        "Annuler", GTK_RESPONSE_CANCEL,
-                        "Renommer", GTK_RESPONSE_OK,
+                        "Cancel", GTK_RESPONSE_CANCEL,
+                        "Rename", GTK_RESPONSE_OK,
                         NULL);
 
     GtkWidget *area = gtk_dialog_get_content_area(GTK_DIALOG(dlg));
@@ -1071,10 +1071,10 @@ static void on_backends_clicked(GtkButton *b, gpointer u)
 
     BackendsDialogData data = {0};
 
-    GtkWidget *dlg = gtk_dialog_new_with_buttons("Presets de backends",
+    GtkWidget *dlg = gtk_dialog_new_with_buttons("Backend presets",
                         GTK_WINDOW(gtk_widget_get_toplevel(ui.root_box)),
                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                        "Fermer", GTK_RESPONSE_CLOSE,
+                        "Close", GTK_RESPONSE_CLOSE,
                         NULL);
     gtk_window_set_default_size(GTK_WINDOW(dlg), 450, -1);
 
@@ -1083,8 +1083,8 @@ static void on_backends_clicked(GtkButton *b, gpointer u)
 
     /* Info */
     GtkWidget *info = gtk_label_new(
-        "Sauvegardez et chargez des configurations complètes\n"
-        "(API, URL, modèle, température, clé).");
+        "Save and load complete configurations.\n"
+        "(API, URL, model, temperature, key).");
     gtk_label_set_xalign(GTK_LABEL(info), 0.0);
     gtk_widget_set_margin_bottom(info, 12);
 
@@ -1092,14 +1092,14 @@ static void on_backends_clicked(GtkButton *b, gpointer u)
     GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     data.combo = gtk_combo_box_text_new();
     gtk_widget_set_hexpand(data.combo, TRUE);
-    GtkWidget *btn_load = gtk_button_new_with_label("Charger");
-    GtkWidget *btn_save = gtk_button_new_with_label("Sauver");
+    GtkWidget *btn_load = gtk_button_new_with_label("Load");
+    GtkWidget *btn_save = gtk_button_new_with_label("Save");
     GtkWidget *btn_del = gtk_button_new_with_label("-");
     GtkWidget *btn_rename = gtk_button_new_with_label("✎");
-    gtk_widget_set_tooltip_text(btn_load, "Charger ce preset");
-    gtk_widget_set_tooltip_text(btn_save, "Sauvegarder la config actuelle");
-    gtk_widget_set_tooltip_text(btn_del, "Supprimer");
-    gtk_widget_set_tooltip_text(btn_rename, "Renommer");
+    gtk_widget_set_tooltip_text(btn_load, "Load this preset");
+    gtk_widget_set_tooltip_text(btn_save, "Save current config");
+    gtk_widget_set_tooltip_text(btn_del, "Delete");
+    gtk_widget_set_tooltip_text(btn_rename, "Rename");
 
     gtk_box_pack_start(GTK_BOX(row), data.combo, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(row), btn_load, FALSE, FALSE, 0);
@@ -1268,7 +1268,7 @@ static void on_api_changed(GtkComboBox *combo, gpointer u)
     (void)combo; (void)u;
     /* Reset history and refresh models list when API changes */
     history_init();
-    ui_add_info_row("[Historique réinitialisé]");
+    ui_add_info_row("[History Reset]");
     refresh_models_list();
 }
 
@@ -1303,14 +1303,14 @@ void ui_build(GeanyPlugin *plugin)
 
     /* Model combo with entry and refresh button */
     GtkWidget *model_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-    GtkWidget *model_lab = gtk_label_new("Modèle");
+    GtkWidget *model_lab = gtk_label_new("Model");
     gtk_widget_set_halign(model_lab, GTK_ALIGN_START);
     ui.cmb_model = gtk_combo_box_text_new_with_entry();
     GtkWidget *model_entry = gtk_bin_get_child(GTK_BIN(ui.cmb_model));
     gtk_entry_set_text(GTK_ENTRY(model_entry), prefs.model);
-    gtk_entry_set_placeholder_text(GTK_ENTRY(model_entry), "Sélectionner ou saisir...");
+    gtk_entry_set_placeholder_text(GTK_ENTRY(model_entry), "Select or enter...");
     ui.btn_refresh = gtk_button_new_with_label("↻");
-    gtk_widget_set_tooltip_text(ui.btn_refresh, "Rafraîchir la liste des modèles");
+    gtk_widget_set_tooltip_text(ui.btn_refresh, "Refresh the list of models");
     g_signal_connect(ui.btn_refresh, "clicked", G_CALLBACK(on_refresh_clicked), NULL);
     gtk_box_pack_start(GTK_BOX(model_box), model_lab, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(model_box), ui.cmb_model, TRUE, TRUE, 0);
@@ -1324,22 +1324,21 @@ void ui_build(GeanyPlugin *plugin)
     gtk_box_pack_start(GTK_BOX(temp_box), lab_t, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(temp_box), ui.spin_temp, FALSE, FALSE, 0);
 
-    ui.chk_stream = gtk_check_button_new_with_label("Streaming");
+ui.chk_stream = gtk_check_button_new_with_label("Streaming");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui.chk_stream), prefs.streaming);
-    ui.chk_dark = gtk_check_button_new_with_label("Sombre");
+    ui.chk_dark = gtk_check_button_new_with_label("Dark");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui.chk_dark), prefs.dark_theme);
     g_signal_connect(ui.chk_dark, "toggled", G_CALLBACK(on_toggle_dark), NULL);
-    ui.chk_links = gtk_check_button_new_with_label("Liens");
+    ui.chk_links = gtk_check_button_new_with_label("Links");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui.chk_links), prefs.links_enabled);
     g_signal_connect(ui.chk_links, "toggled", G_CALLBACK(on_toggle_links), NULL);
-    ui.btn_ctx = gtk_button_new_with_label("Contexte…");
+    ui.btn_ctx = gtk_button_new_with_label("Context…");
     g_signal_connect(ui.btn_ctx, "clicked", G_CALLBACK(on_context_clicked), NULL);
-    ui.btn_network = gtk_button_new_with_label("Réseau…");
+    ui.btn_network = gtk_button_new_with_label("Network…");
     g_signal_connect(ui.btn_network, "clicked", G_CALLBACK(on_network_clicked), NULL);
     ui.btn_backends = gtk_button_new_with_label("Backends…");
     g_signal_connect(ui.btn_backends, "clicked", G_CALLBACK(on_backends_clicked), NULL);
-
-    GtkWidget *key_box = make_labeled_entry("Clé", &ui.ent_key);
+    GtkWidget *key_box = make_labeled_entry("Key", &ui.ent_key);
     gtk_entry_set_text(GTK_ENTRY(ui.ent_key), prefs.api_key);
 
     gtk_box_pack_start(GTK_BOX(opts), ui.cmb_api, FALSE, FALSE, 0);
@@ -1379,13 +1378,13 @@ void ui_build(GeanyPlugin *plugin)
     gtk_box_pack_start(GTK_BOX(input_row), input_scroll, TRUE, TRUE, 0);
 
     GtkWidget *btns = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
-    ui.btn_send      = gtk_button_new_with_label("Envoyer (Entrée)");
-    ui.btn_send_sel  = gtk_button_new_with_label("Envoyer sélection");
-    ui.btn_stop      = gtk_button_new_with_label("Stop");
-    ui.btn_clear     = gtk_button_new_with_label("Effacer");
-    ui.btn_reset     = gtk_button_new_with_label("Réinit. histo");
-    ui.btn_copy_all  = gtk_button_new_with_label("Copier tout");
-    ui.btn_export    = gtk_button_new_with_label("Exporter…");
+	ui.btn_send = gtk_button_new_with_label("Send (Input)");
+    ui.btn_send_sel = gtk_button_new_with_label("Send selection");
+    ui.btn_stop = gtk_button_new_with_label("Stop");
+    ui.btn_clear = gtk_button_new_with_label("Clear");
+    ui.btn_reset = gtk_button_new_with_label("Reset history");
+    ui.btn_copy_all = gtk_button_new_with_label("Copy all");
+    ui.btn_export = gtk_button_new_with_label("Export…");
 
     g_signal_connect(ui.btn_send,     "clicked", G_CALLBACK(on_send), NULL);
     g_signal_connect(ui.btn_send_sel, "clicked", G_CALLBACK(on_send_selection), NULL);
@@ -1411,7 +1410,7 @@ void ui_build(GeanyPlugin *plugin)
     gtk_box_pack_start(GTK_BOX(ui.root_box), input_row, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(ui.root_box), btns,   FALSE, FALSE, 0);
 
-    gtk_notebook_append_page(GTK_NOTEBOOK(nb), ui.root_box, gtk_label_new("Chat IA"));
+    gtk_notebook_append_page(GTK_NOTEBOOK(nb), ui.root_box, gtk_label_new("Chat AI"));
     gtk_widget_show_all(ui.root_box);
 
     gtk_widget_set_sensitive(ui.btn_stop, FALSE);
